@@ -1,0 +1,211 @@
+amp: false
+dataset:
+  train:
+    a2g_args:
+      r_energy: true
+      r_forces: true
+      r_stress: true
+    format: ase_db
+    src:
+    - /path/to/train/dataset
+  val:
+    a2g_args:
+      r_energy: true
+      r_forces: true
+      r_stress: true
+    format: ase_db
+    src:
+    - /path/to/valid/dataset
+evaluation_metrics:
+  metrics:
+    energy:
+    - mae
+    - per_atom_mae
+    forces:
+    - mae
+    stress:
+    - mae
+  primary_metric: forces_mae
+gp_gpus: null
+gpus: 4
+logger: files
+loss_functions:
+- energy:
+    coefficient: 1
+    fn: per_atom_mae
+- forces:
+    coefficient: 1
+    fn: l2mae
+- stress:
+    coefficient: 0.01
+    fn: voigt6mae
+model:
+  act_gate:
+    e: silu
+    o: tanh
+  act_scalar:
+    e: silu
+    o: tanh
+  channel: 256
+  conv_denominator: 72.48148148148148
+  cutoff: 6.0
+  cutoff_function:
+    cutoff_function_name: XPLOR
+    cutoff_on: 5.5
+  irreps_manual:
+  - 256x0e
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e
+  is_parity: true
+  lmax: 3
+  max_neighbors: 2000000
+  name: equflash
+  num_convolution_layer: 10
+  otf_graph: true
+  radial_basis:
+    bessel_basis_num: 8
+    radial_basis_name: bessel
+  self_connection_type: linear
+  train_denominator: false
+  train_shift_scale: false
+  use_pbc: true
+  weight_nn_hidden_neurons:
+  - 64
+  - 64
+  type_map:
+      89 : 0
+      47 : 1
+      13 : 2
+      18 : 3
+      33 : 4
+      79 : 5
+      5 : 6
+      56 : 7
+      4 : 8
+      83 : 9
+      35 : 10
+      6 : 11
+      20 : 12
+      48 : 13
+      58 : 14
+      17 : 15
+      27 : 16
+      24 : 17
+      55 : 18
+      29 : 19
+      66 : 20
+      68 : 21
+      63 : 22
+      9 : 23
+      26 : 24
+      31 : 25
+      64 : 26
+      32 : 27
+      1 : 28
+      72 : 29
+      80 : 30
+      67 : 31
+      53 : 32
+      49 : 33
+      77 : 34
+      19 : 35
+      36 : 36
+      57 : 37
+      3 : 38
+      71 : 39
+      12 : 40
+      25 : 41
+      42 : 42
+      7 : 43
+      11 : 44
+      41 : 45
+      60 : 46
+      28 : 47
+      93 : 48
+      8 : 49
+      76 : 50
+      15 : 51
+      91 : 52
+      82 : 53
+      46 : 54
+      61 : 55
+      59 : 56
+      78 : 57
+      94 : 58
+      37 : 59
+      75 : 60
+      45 : 61
+      44 : 62
+      16 : 63
+      51 : 64
+      21 : 65
+      34 : 66
+      14 : 67
+      62 : 68
+      50 : 69
+      38 : 70
+      73 : 71
+      65 : 72
+      43 : 73
+      52 : 74
+      90 : 75
+      22 : 76
+      81 : 77
+      69 : 78
+      92 : 79
+      23 : 80
+      74 : 81
+      54 : 82
+      39 : 83
+      70 : 84
+      30 : 85
+      40 : 86
+
+  scale: 0.8651
+  shift: -4.1434
+
+optim:
+  anneal_strategy: cos
+  batch_size: 16
+  checkpoint_every: -1
+  clip_grad_norm: 100
+  eval_batch_size: 16
+  lr_initial: 0.001
+  max_epochs: 1000
+  max_lr: 0.001
+  num_workers: 8
+  optimizer: AdamW
+  optimizer_params:
+    weight_decay: 0.001
+  pct_start: 0.00125
+  scheduler: OneCycleLR
+  total_iters: max_epochs
+outputs:
+  energy:
+    level: system
+    shape: 1
+  forces:
+    eval_on_free_atoms: true
+    irrep_dim: 1
+    level: atom
+    train_on_free_atoms: true
+  stress:
+    level: system
+    property: stress
+slurm: {}
+task:
+  finetune:
+    checkpoint: /path/to/checkpoint.pt
+    reset_head: true
+  strict_load: false
+test_dataset: {}
+trainer: default
+

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.o
+*.so
+**/.ninja_*
+**/build.ninja
+**/*.hash
+
+venv/
+.env
+
+checkpoint/
+checkpoints/
+log/
+logs/

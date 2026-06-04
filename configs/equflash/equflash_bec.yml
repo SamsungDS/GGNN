@@ -1,0 +1,167 @@
+amp: false
+dataset:    
+  train:
+    format: ase_arrays_read_multi
+    src: /path/to/train/dataset
+    pattern: train.xyz
+    ase_read_args:
+      index: ":"
+      format: "extxyz"
+    a2g_args: { r_energy: True, r_forces: True, r_stress: True, r_data_keys: ['pol', 'polarizability'], r_array_keys: ['born_charge'] }
+    key_mapping: { energy: energy, pol: polarization, polarizability: polarizability, born_charge: born_charge }
+  val:
+    format: ase_arrays_read_multi
+    src: /path/to/valid/dataset
+    pattern: valid.xyz
+    ase_read_args:
+      index: ":"
+      format: "extxyz"
+    a2g_args: { r_energy: True, r_forces: True, r_stress: True, r_data_keys: ['pol', 'polarizability'], r_array_keys: ['born_charge'] }
+    key_mapping: { energy: energy, pol: polarization, polarizability: polarizability, born_charge: born_charge }
+  test:
+    format: ase_arrays_read_multi
+    src: /path/to/test/dataset
+    pattern: test.xyz
+    ase_read_args:
+      index: ":"
+      format: "extxyz"
+    a2g_args: { r_energy: True, r_forces: True, r_stress: True, r_data_keys: ['pol', 'polarizability'], r_array_keys: ['born_charge'] }
+    key_mapping: { energy: energy, pol: polarization, polarizability: polarizability, born_charge: born_charge }
+gp_gpus: null
+gpus: 1
+logger: files
+
+outputs:
+  energy:
+    shape: 1
+    level: system
+    prediction_dtype: float32
+  forces:
+    irrep_dim: 1
+    level: atom
+    train_on_free_atoms: True
+    eval_on_free_atoms: True
+    prediction_dtype: float32
+  stress:
+    irrep_dim: 2
+    level: system
+    prediction_dtype: float32
+  born_charge:
+    irrep_dim: 2
+    level: atom
+    train_on_free_atoms: True
+    eval_on_free_atoms: True
+    prediction_dtype: float32    
+
+loss_functions:
+  - energy:
+      fn: per_atom_mae
+      coefficient: 1
+  - forces:
+      fn: l2mae
+      coefficient: 1
+  - stress:
+      fn: voigt6mae
+      coefficient: 1
+  - born_charge:
+      fn: mae
+      coefficient: 1
+
+evaluation_metrics:
+  metrics:
+    energy:
+      - per_atom_mae
+      - mae
+      - mse
+    forces:
+      - l2mae
+      - mae
+      - mse
+    stress:
+      - voigt6mae_sym
+      - mae
+      - mse
+    born_charge:
+      - mae
+      - mse
+  primary_metric: forces_mae
+
+model:
+  act_gate:
+    e: silu
+    o: tanh
+  act_scalar:
+    e: silu
+    o: tanh
+  channel: 256
+  conv_denominator: 72.48148148148148
+  cutoff: 6.0
+  cutoff_function:
+    cutoff_function_name: XPLOR
+    cutoff_on: 5.5
+  irreps_manual:
+  - 256x0e
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+256x1o+256x2e+256x3o
+  - 256x0e+128x1e+128x2e
+  is_parity: true
+  lmax: 3
+  max_neighbors: 2000000
+  name: equflash_bec
+  num_convolution_layer: 10
+  otf_graph: true
+  radial_basis:
+    bessel_basis_num: 8
+    radial_basis_name: bessel
+  self_connection_type: linear
+  train_denominator: false
+  train_shift_scale: false
+  use_pbc: true
+  weight_nn_hidden_neurons:
+  - 64
+  - 64
+  scale: 0.8722
+  shift: 
+      12: -5.8252
+      8: -7.1256
+  type_map: 
+      12 : 0
+      8 : 1
+
+optim:
+
+  batch_size: 2
+  eval_batch_size: 2
+  num_workers: 8
+  max_epochs: 500    
+
+  optimizer: AdamW
+  optimizer_params:
+    amsgrad: False
+    weight_decay: 0.    #1.e-4
+  
+  scheduler: CosineAnnealingLR
+  lr_initial: 0.005
+  T_max: 3000             # set to total STEPS, not epochs!
+  eta_min: 1.e-5
+
+  eval_every: 6
+  checkpoint_every: 300
+
+relax_dataset: {}
+slurm: {}
+task:
+  finetune:
+    checkpoint: /path/to/checkpoint.pt
+    reset_head: true
+  strict_load: false
+test_dataset: {}
+trainer: default
+

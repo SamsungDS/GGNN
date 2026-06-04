@@ -1,0 +1,85 @@
+model_name: EquFlash
+model_key: equflash-44M-oam
+model_version: v2026.05.23
+date_added: '2026-05-23'
+date_published: '2026-05-23'
+authors:
+  - name: Hyuntae Cho
+    affiliation: VAI2 at Samsung Electronics
+    email: robert.cho@samsung.com
+    orcid: https://orcid.org/0000-0001-9379-6877
+  - name: Gunhee Kim
+    affiliation: VAI2 at Samsung Electronics
+  - name: Geonu Kim
+    affiliation: VAI2 at Samsung Electronics
+  - name: Heejae Kim
+    affiliation: VAI2 at Samsung Electronics
+  - name: Hyeonwoo Lee
+    affiliation: VAI2 at Samsung Electronics
+  - name: Suhwan Song
+    affiliation: VAI2 at Samsung Electronics
+  - name: Jaehee Jang
+    affiliation: VAI2 at Samsung Electronics
+  - name: Jeongmin Choi
+    affiliation: VAI2 at Samsung Electronics
+
+repo: https://github.com/<user>/<repo>
+url: TBD
+doi: TBD
+preprint: TBD
+checkpoint_url: https://url.of/model-checkpoint-file # should be the direct download URL of the model checkpoint file. If there's a page documenting the checkpoint, append that as a YAML comment.
+
+openness: OSOD # see `Open` enum in matbench_discovery/enums.py
+train_task: S2EFS # see `Task` enum in matbench_discovery/enums.py
+test_task: IS2RE-SR # see `Task` enum in matbench_discovery/enums.py
+targets: EFS_G # see `Targets` enum in matbench_discovery/enums.py
+model_type: UIP # see `ModelType` enum in matbench_discovery/enums.py
+model_params: 44_890_492
+trained_for_benchmark: true
+
+license:
+  code: MIT
+  code_url: https://url.of/code-license
+  checkpoint: CC-BY-4.0
+  # URL that points to the license file for the model checkpoint, not the checkpoint file itself.
+  checkpoint_url: https://url.of/model-checkpoint-license
+
+hyperparams: # strongly recommended to list relaxation hyperparams
+  max_force: 0.02
+  max_steps: 500
+  ase_optimizer: FIRE
+  cell_filter: FrechetCellFilter
+  graph_construction_radius: 6.0 # Å
+  max_neighbors: .inf
+    ... # additional hyperparameters describing training and inference
+
+training_cost: # list any hardware used to train the model and for how long
+  # hardware: { amount: float, hours: float, cost: float [USD] }
+  Nvidia H100 GPUs: { amount: 16, hours: 80}
+
+requirements: # strongly recommended
+  torch: 2.9.1
+  fairchem-core: 1.10.0
+  torch-geometric: 2.7.0
+  
+
+training_set: [OMat24, MPtrj, sAlex]
+
+notes: # notes can have any key, be multiline and support markdown.
+  description: This is how my model works...
+  steps: |
+    Optional *free-form* [markdown](example.com) notes.
+
+metrics:
+  phonons:
+    kappa_103:
+      pred_file: models/<model_dir>/<yyyy-mm-dd>-kappa-103-<values-of-dist|fmax|symprec>.json.gz
+      pred_file_url: https://figshare.com/files/<figshare_id>
+  geo_opt: # only applicable if the model performed structure relaxation
+    pred_file: models/<model_dir>/<yyyy-mm-dd>-wbm-geo-opt-<optimizer>.json.gz # should contain the models relaxed structures as ASE Atoms or pymatgen Structures, and separate columns for material_id and energies/forces/stresses at each relaxation step
+    pred_file_url: https://figshare.com/files/<figshare_id>
+    struct_col: <column_name_of_material_ids_in_relaxed_structures>
+  discovery:
+    pred_file: models/<model_dir>/<yyyy-mm-dd>-<model_name>-wbm-IS2RE.csv.gz # should contain the models energy predictions for the WBM test set
+    pred_file_url: https://figshare.com/files/<figshare_id>
+    pred_col: e_form_per_atom_<model_name>
