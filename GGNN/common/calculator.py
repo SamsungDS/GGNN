@@ -38,9 +38,9 @@ from collections import OrderedDict
 
 
 def convert_compiled_ckpt(ckpt):
-    if ckpt["config"]["model"]["name"].startswith("compiled_"):
+    if ckpt["config"]["model"]["name"].endswith("_comp"):
         ckpt["config"]["model"]["name"] = ckpt["config"]["model"]["name"].replace(
-            "compiled_", ""
+            "_comp", ""
         )
         new_dict = OrderedDict()
         for k, v in ckpt["state_dict"].items():
