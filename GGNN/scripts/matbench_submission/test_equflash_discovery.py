@@ -14,7 +14,6 @@ import tqdm
 from fairchem.core.common.utils import update_config
 from GGNN.common.calculator import UCalculator
 from GGNN.preprocessing.atoms_to_graphs import AtomsToGraphs
-from GGNN.trainer.utrainer import OCPTrainer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SiteCollection, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -93,11 +92,6 @@ def parse_args() -> argparse.Namespace:
         "--init-structs-dir", required=True, help="WBM initial structures directory"
     )
     parser.add_argument(
-        "--relaxed-structs-file",
-        required=True,
-        help="WBM relaxed structures pickle file",
-    )
-    parser.add_argument(
         "--wbm-metadata-file",
         required=True,
         help="WBM structures metadata file",
@@ -110,8 +104,6 @@ if __name__ == "__main__":
     args = parse_args()
     os.makedirs(args.out, exist_ok=True)
 
-    with open(args.relaxed_structs_file, "rb") as file:
-        structs_wbm = pickle.load(file)  # noqa: S301 safe internal data
 
     metadata = {
         "checkpoint": os.path.abspath(args.checkpoint),

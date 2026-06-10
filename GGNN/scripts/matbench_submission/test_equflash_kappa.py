@@ -224,7 +224,7 @@ def main() -> None:
 
     print(f"{len(atoms_list)} on {args.rank}")
     for atoms in tqdm(atoms_list):
-        mat_id = atoms.info["mp_id"]
+        mat_id = atoms.info["material_id"]
         init_info = deepcopy(atoms.info)
         mat_name = atoms.info["name"]
         mat_desc = f"{mat_name}-{SYMM_NAME_MAP[atoms.info['symm.no']]}"
@@ -293,7 +293,7 @@ def main() -> None:
                 relax_dict["ase_symbols"] = str(atoms.symbols)
                 relax_dict["ase_cell"] = np.array(atoms.cell)
                 relax_dict["ase_positions"] = atoms.positions
-                relax_dict["ase_q_mesh"] = atoms.info["q_mesh"]
+                relax_dict["ase_q_mesh"] = atoms.info["q_point_mesh"]
 
                 atoms.calc = None
 
@@ -303,7 +303,7 @@ def main() -> None:
                 atoms,
                 fc2_supercell=atoms.info["fc2_supercell"],
                 fc3_supercell=atoms.info["fc3_supercell"],
-                q_point_mesh=atoms.info["q_mesh"],
+                q_point_mesh=atoms.info["q_point_mesh"],
                 symprec=symprec,
                 displacement_distance=args.displacement,
             )
