@@ -35,6 +35,13 @@ python main.py --mode train --config-yml configs/*.yml --checkpoint checkpoint.p
 | `equflashv2` | Base EquflashV2 model |
 | `equflashv2_comp` | TorchScript-compiled EquflashV2 |
 
+## Checkpoints
+
+| Version | Download |
+|---|---|
+| `equflash` | [figshare](https://figshare.com/ndownloader/files/65435004) |
+| `equflashv2` | [figshare](https://figshare.com/ndownloader/files/65435007) |
+
 ## Calculator
 
 ```python
