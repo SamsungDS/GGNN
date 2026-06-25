@@ -99,13 +99,6 @@ class ListInputOutputStateDictWrapper(ListInputOutputWrapper):
         # won't check that `args` is of the correct length
         input_dict = _list_to_dict(self.input_keys, args[: len(self.input_keys)])
         state_dict = _list_to_dict(self.state_dict_keys, args[len(self.input_keys) :])
-        # have to do it this way and not using state_dict directly for autograd reasons
-        # the `.data` part is important
-        # with torch.no_grad():
-        #     for name, param in self.model.named_parameters():
-        #         param.data.copy_(state_dict[name])
-        #     for name, buffer in self.model.named_buffers():
-        #         buffer.data.copy_(state_dict[name])
         output_dict = self.model(input_dict)
         return _list_from_dict(self.output_keys, output_dict)
 
@@ -151,8 +144,6 @@ def _nequip_make_fx(model, inputs):
 @registry.register_model("equflashv2_comp")
 class CompiledEquFlashV2(nn.Module):
     """
-    Wrapper of SevenNet model
-
     Args:
         modules: OrderedDict of nn.Modules
         cutoff: not used internally, but makes sense to have
@@ -166,9 +157,8 @@ class CompiledEquFlashV2(nn.Module):
     def __init__(self, config: dict, dataset=None, device=None, parallel=False):
         super().__init__()
         warnings.warn(
-            "CompiledEquflash is not stable yet. If it fails during forward, use equflashv2 instead of equflashv2_comp"
+            "CompiledEquflashV2 is not stable yet. If it fails during forward, use Equflashv2 instead of CompiledEquflashV2"
         )
-        # processing_dataset(config, dataset)
 
         self.config = config
         self.regress_forces = self.config.get("regress_forces", True)
@@ -221,11 +211,6 @@ class CompiledEquFlashV2(nn.Module):
             print("compiling!")
             self.compiled_model = torch.compile(fx_model, dynamic=True, fullgraph=True)
 
-            # # weights, buffers
-            # data_list = _list_from_dict(self.input_keys, batch)
-            # print("first compile forward")
-            # out_list = self.compiled_model(*(data_list + weights + buffers))
-            # out_dict = _list_to_dict(self.output_keys, out_list)
         out_dict = self._compiled_forward(batch)
         out = {}
         out["energy"] = out_dict["energy"]
@@ -282,17 +267,3 @@ class CompiledEquFlashV2(nn.Module):
                     no_wd_list.append(global_parameter_name)
 
         return set(no_wd_list)
-
-
-
-
-def convert_compiled_to_original_sevennet(ckpt):
-    if "compiled_sevennet" == ckpt["config"]["model"]["name"]:
-        ckpt["config"]["model"]["name"] = "sevennet"
-        new_dict = OrderedDict()
-        for k, v in ckpt["state_dict"].items():
-            k1 = k.replace("model.", "")
-            new_dict[k1] = v
-        ckpt["state_dict"] = new_dict
-
-    return ckpt
