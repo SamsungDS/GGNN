@@ -77,7 +77,7 @@ class IntegratedConv(nn.Module):
         weight_layer_act=ShiftedSoftPlus,
         denominator: float = 1.0,
         train_denominator: bool = False,
-        conv_type: str = "flashtp",
+        conv_type: str = "cueq",
         use_lammps_mliap: bool = False,
     ):
         super().__init__()
