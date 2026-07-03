@@ -37,10 +37,12 @@ python main.py --mode train --config-yml configs/*.yml --checkpoint checkpoint.p
 
 ## Checkpoints
 
-| Version | Download |
+| Checkpoint | Download |
 |---|---|
-| `equflash` | [figshare](https://figshare.com/ndownloader/files/65435004) |
-| `equflashv2` | [figshare](https://figshare.com/ndownloader/files/65435007) |
+| `equflash-OAM` | [figshare](https://figshare.com/ndownloader/files/65435004) |
+| `equflash-OMat24` | [figshare](https://figshare.com/ndownloader/files/66275099) |
+| `equflashv2-OAM` | [figshare](https://figshare.com/ndownloader/files/65435007) |
+| `equflashv2-OMat24` | [figshare](https://figshare.com/ndownloader/files/66275102) |
 
 ## Calculator
 
