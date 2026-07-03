@@ -20,6 +20,7 @@ from .nn.feed_foward import FeedForward
 
 import e3nn
 from e3nn.o3 import Irreps, FullTensorProduct, FullyConnectedTensorProduct
+from e3nn.io import CartesianTensor
 from .equflash import EquFlash
 from .nn.atomic_reduce import AtomicReducePol, AtomicReduceBEC
 
@@ -224,8 +225,7 @@ class EquFlash_BEC(EquFlash):
         )
 
         self.force_output = ForceStressOutputFromEdge()
-        #self.bec_output = BecOutputFromEdge()
-
+        self.bec_tensor = CartesianTensor("ij")   # 1x0e+1x1e+1x2e
 
     def initialize_activations(self):
         # Select radial activation (default: silu)
@@ -259,36 +259,7 @@ class EquFlash_BEC(EquFlash):
         out = {}
         out["energy"] = batch["total_energy"]
         out["atomic_energy"] = batch["atomic_energy"]
-
-        #transform
-        s = batch["bec"][..., 0]                         # scalar (0e)
-        a = batch["bec"][..., 1:4]                       # antisymmetric (1e)
-        q = batch["bec"][..., 4:]                        # symmetric traceless (2e)
-        qxx, qyy, qxy, qxz, qyz = q.unbind(-1)
-
-        # scalar part
-        eye = torch.eye(3, device=batch["bec"].device, dtype=batch["bec"].dtype)
-        A0 = s[..., None, None] * eye         # (..., 3, 3)
-
-        # antisymmetric part
-        ax, ay, az = a.unbind(-1)
-        zeros = torch.zeros_like(ax)
-        A1 = torch.stack([
-            torch.stack([zeros, -az,  ay], dim=-1),
-            torch.stack([ az, zeros, -ax], dim=-1),
-            torch.stack([-ay,  ax, zeros], dim=-1),
-        ], dim=-2)
-
-        # symmetric traceless part
-        A2 = torch.stack([
-            torch.stack([qxx, qxy, qxz], dim=-1),
-            torch.stack([qxy, qyy, qyz], dim=-1),
-            torch.stack([qxz, qyz, -qxx - qyy], dim=-1),
-        ], dim=-2)
-
-        # total
-        out["born_charge"] = A0 + A1 + A2
-
+        out["born_charge"] = self.bec_tensor.to_cartesian(batch["bec"])
 
         if not self.lammps_mliap:
             forces, stress = self.force_output(batch)
